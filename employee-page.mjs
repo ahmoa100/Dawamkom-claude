@@ -76,7 +76,6 @@ ${passwordRules('employee-password-rules', true)}
 <h2>الحضور</h2>
 <div id="employee-attendance-scope" class="employee-home-tabs employee-attendance-scope" role="group" aria-label="عرض الحضور" hidden><button type="button" class="button" data-attendance-scope="personal" aria-pressed="true">حضوري</button><button type="button" class="button" data-attendance-scope="team" aria-pressed="false">الفريق</button></div>
 <div id="employee-attendance-team" hidden>
-<section class="card employee-attendance-me" id="employee-attendance-me" aria-label="حالتي اليوم"></section>
 <div id="employee-attendance-team-list"></div>
 </div>
 <div id="employee-attendance-personal">

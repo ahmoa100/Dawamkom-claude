@@ -524,41 +524,13 @@ function chooseAttendanceScope(scope) {
 for (const button of document.querySelectorAll('[data-attendance-scope]'))
   button.onclick = () => chooseAttendanceScope(button.dataset.attendanceScope);
 
-function renderAttendanceMe(card, day, L) {
-  const tone = !day ? 'neutral' : day.missingPunchKinds?.length ? 'amber' : day.status === 'complete' ? 'green' : day.status === 'issue' ? 'red' : 'neutral';
-  const punches = [...(day?.punches ?? [])].sort((a, b) => Date.parse(a.time) - Date.parse(b.time));
-  const arrival = punches.find(punch => punch.kind === 'in'), departure = punches.findLast(punch => punch.kind === 'out');
-  const clock = punch => punch ? employeeClock().format(Date.parse(punch.time)) : '—';
-  card.innerHTML = '<header><strong>' + esc(L('أنا · اليوم', 'Me · today')) + '</strong>' +
-    (day ? '<span class="badge ' + tone + '">' + esc(attendanceDayLabel(day)) + '</span>' : '') + '</header>' +
-    '<div class="employee-attendance-me-times"><div><small>' + esc(L('دخول', 'Clock-in')) + '</small><bdi>' + esc(clock(arrival)) + '</bdi></div>' +
-    '<div><small>' + esc(L('خروج', 'Clock-out')) + '</small><bdi>' + esc(clock(departure)) + '</bdi></div></div>';
-  const link = document.createElement('button');
-  link.type = 'button';
-  link.className = 'employee-attendance-me-link';
-  link.textContent = L('عرض حضوري ‹', 'View my attendance ›');
-  link.onclick = () => chooseAttendanceScope('personal');
-  card.append(link);
-}
-
 async function renderAttendanceTeam() {
   const L = (a, b) => employeeLanguage === 'ar' ? a : b;
   const load = ++attendanceTeamLoad;
   const list = $('#employee-attendance-team-list');
   list.replaceChildren();
   mountTeamAttendance(list, session.teamSummary, L,
-    { isOpen: () => load === attendanceTeamLoad && employeeView === 'attendance' && attendanceScope === 'team' });
-  const card = $('#employee-attendance-me');
-  card.textContent = tr('جاري تحميل البصمات…');
-  try {
-    const cached = attendanceCalendar?.days?.some(day => day.date === session.today) ? attendanceCalendar : null;
-    const calendar = cached ?? await api('calendar?month=' + encodeURIComponent(session.today.slice(0, 7)));
-    if (load !== attendanceTeamLoad) return;
-    if (calendar.ok === false) throw new Error();
-    renderAttendanceMe(card, calendar.days?.find(day => day.date === session.today), L);
-  } catch {
-    if (load === attendanceTeamLoad) card.textContent = L('تعذّر تحميل حالتك اليوم.', 'Could not load your status today.');
-  }
+    { cards: true, isOpen: () => load === attendanceTeamLoad && employeeView === 'attendance' && attendanceScope === 'team' });
 }
 function showHomeTab(tab) {
   homeTab = session.canReviewTeam ? tab : 'personal';
@@ -596,12 +568,17 @@ function showPresentStaff(summary, L) {
   dialog.showModal();
 }
 
-function mountTeamAttendance(host, summary, L, {isOpen=()=>host.isConnected,setTitle=()=>{}}={}) {
+function mountTeamAttendance(host, summary, L, {isOpen=()=>host.isConnected,setTitle=()=>{},cards=false}={}) {
   const today = session.today;
   const toolbar = document.createElement('div');
   toolbar.className = 'employee-team-attendance-dates';
   const label = document.createElement('label');
   label.textContent = L('تاريخ الحضور','Attendance date');
+  if (cards) {
+    host.classList.add('employee-team-cards-mode');
+    toolbar.classList.add('employee-team-datebar');
+    label.replaceChildren(Object.assign(document.createElement('span'),{className:'sr-only',textContent:label.textContent}));
+  }
   const picker = document.createElement('input');
   picker.type = 'date';
   picker.setAttribute('aria-label',label.textContent);
@@ -614,10 +591,16 @@ function mountTeamAttendance(host, summary, L, {isOpen=()=>host.isConnected,setT
     button.textContent = text;
     return button;
   };
-  const previous = stepButton(L('السابق','Previous'));
-  const next = stepButton(L('التالي','Next'));
+  const previous = stepButton(cards ? L('›','‹') : L('السابق','Previous'));
+  const next = stepButton(cards ? L('‹','›') : L('التالي','Next'));
+  if (cards) {
+    previous.setAttribute('aria-label',L('اليوم السابق','Previous day'));
+    next.setAttribute('aria-label',L('اليوم التالي','Next day'));
+    previous.classList.add('employee-icon-button');
+    next.classList.add('employee-icon-button');
+  }
   const filters = document.createElement('div');
-  filters.className = 'employee-team-attendance-filters';
+  filters.className = 'employee-team-attendance-filters' + (cards ? ' employee-team-chips' : '');
   filters.setAttribute('role','group');
   filters.setAttribute('aria-label',L('حالة الحضور','Attendance status'));
   const content = document.createElement('div');
@@ -630,12 +613,20 @@ function mountTeamAttendance(host, summary, L, {isOpen=()=>host.isConnected,setT
   let selected = today;
   let filter = 'all';
   let attendance;
+  const counts = new Map();
   const render = () => {
     content.replaceChildren();
-    if (attendance) renderPresentStaff(content,attendance,L,filter);
+    if (cards) {
+      const rows = attendance ? teamShifts([...attendance.punches ?? [],...attendance.absentShifts ?? []]) : [];
+      for (const [key,count] of counts) count.textContent = attendance ? new Intl.NumberFormat(employeeLanguage)
+        .format(rows.filter(shift => key === 'all' || (shift[0].shiftStatus ?? 'incomplete') === key).length) : '';
+    }
+    if (attendance) (cards ? renderTeamCards : renderPresentStaff)(content,attendance,L,filter);
   };
-  for (const [key,text] of [['all',L('الكل','All')],['incomplete',L('غير مكتمل','Incomplete')],['absent',L('غياب','Absent')]]) {
+  for (const [key,text] of [['all',L('الكل','All')],['complete',L('مكتمل','Complete')],['incomplete',L('غير مكتمل','Incomplete')],['absent',L('غياب','Absent')]]) {
+    if (key === 'complete' && !cards) continue;
     const button = stepButton(text);
+    if (cards) { const count = document.createElement('b'); counts.set(key,count); button.append(' ',count); }
     button.setAttribute('aria-pressed',String(key === filter));
     button.onclick = () => {
       if (filter === key) return;
@@ -654,7 +645,7 @@ function mountTeamAttendance(host, summary, L, {isOpen=()=>host.isConnected,setT
     next.disabled = day >= today;
     const request = ++load;
     attendance = null;
-    content.replaceChildren();
+    render();
     status.hidden = day === today;
     status.textContent = status.hidden ? '' : L('جارٍ تحميل الحضور…','Loading attendance…');
     try {
@@ -796,6 +787,110 @@ function renderPresentStaff(content,{punches, branches = [], absentShifts = []},
     }
   }
   content.append(table);
+}
+
+function teamShifts(rows) {
+  const name = person => employeeLanguage === 'ar' ? person.nameAr || person.name || person.nameEn : person.nameEn || person.name || person.nameAr;
+  const collator = new Intl.Collator(employeeLanguage);
+  const sorted = [...rows].sort((a,b) => Number(b.administrator) - Number(a.administrator) ||
+    collator.compare(name(a),name(b)) || a.staffId.localeCompare(b.staffId) ||
+    (a.shiftStart ?? Infinity) - (b.shiftStart ?? Infinity) || Date.parse(a.time) - Date.parse(b.time));
+  const shifts = [];
+  for (const punch of sorted) {
+    const previous = shifts.at(-1);
+    if (punch.shiftStart != null && previous?.[0].staffId === punch.staffId &&
+        previous[0].shiftStart === punch.shiftStart) previous.push(punch);
+    else shifts.push([punch]);
+  }
+  return shifts;
+}
+
+// Phone layout for the attendance tab: one card per person and shift instead of a squeezed table.
+function renderTeamCards(content,{punches = [], branches = [], absentShifts = []}, L, filter) {
+  const shifts = teamShifts([...punches,...absentShifts]).filter(shift => filter === 'all' || (shift[0].shiftStatus ?? 'incomplete') === filter);
+  if (!shifts.length) {
+    const message = document.createElement('p');
+    message.className = 'employee-team-empty';
+    message.textContent = filter === 'all' ? L('لا توجد سجلات حضور لهذا اليوم.','No attendance records for this day.') :
+      L('لا توجد سجلات بهذه الحالة لهذا اليوم.','No records with this status for this day.');
+    content.append(message);
+    return;
+  }
+  const name = person => employeeLanguage === 'ar' ? person.nameAr || person.name || person.nameEn : person.nameEn || person.name || person.nameAr;
+  const statusLabels = { complete:L('مكتمل','Complete'), absent:L('غياب','Absent'), incomplete:L('غير مكتمل','Incomplete') };
+  const groups = new Map(branches.length > 1 ? branches.map(({id,name}) => [id,{name,shifts:[]}]) : [[null,{shifts:[]}]]);
+  for (const shift of shifts) {
+    const id = groups.has(shift[0].branchId) ? shift[0].branchId : null;
+    if (!groups.has(id)) groups.set(id,{name:L('بدون فرع','No branch'),shifts:[]});
+    groups.get(id).shifts.push(shift);
+  }
+  let first = true;
+  for (const group of groups.values()) {
+    if (!group.shifts.length) continue;
+    const list = document.createElement('div');
+    list.className = 'employee-team-card-list';
+    for (const shift of group.shifts) {
+      const [punch] = shift;
+      const shiftStatus = punch.shiftStatus ?? 'incomplete';
+      const card = document.createElement('article');
+      card.className = 'employee-team-card';
+      card.dataset.shiftStatus = shiftStatus;
+      const head = document.createElement('div');
+      head.className = 'employee-team-card-head';
+      const avatar = document.createElement('span');
+      avatar.className = 'employee-team-avatar';
+      avatar.setAttribute('aria-hidden','true');
+      avatar.textContent = [...(name(punch) || '?').trim()][0] ?? '?';
+      const who = document.createElement('span');
+      who.className = 'employee-team-who';
+      const title = document.createElement('b');
+      title.textContent = name(punch) + (punch.self ? ' ' + L('(أنت)','(you)') : '');
+      const period = document.createElement('small');
+      const scheduled = Number.isFinite(punch.scheduledStart) && Number.isFinite(punch.scheduledEnd);
+      period.textContent = [punch.jobTitle ? tr(punch.jobTitle) : '', scheduled ? '' : punch.periodName || ''].filter(Boolean).join(' · ');
+      if (scheduled) {
+        if (period.textContent) period.append(' · ');
+        const hours = document.createElement('bdi');
+        hours.textContent = employeeClock().format(punch.scheduledStart) + ' – ' + employeeClock().format(punch.scheduledEnd);
+        period.append(hours);
+      }
+      who.append(title,period);
+      const pill = document.createElement('span');
+      pill.className = 'badge ' + ({complete:'green',absent:'red'}[shiftStatus] ?? 'amber');
+      pill.textContent = statusLabels[shiftStatus];
+      head.append(avatar,who,pill);
+      card.append(head);
+      const times = document.createElement('div');
+      times.className = 'employee-team-times';
+      const firstIn = shift.find(entry => entry.kind === 'in'), lastOut = shift.findLast(entry => entry.kind === 'out');
+      for (const [kind,text,entry] of [['in',L('أول تسجيل حضور','First clock-in'),firstIn],['out',L('آخر انصراف','Last clock-out'),lastOut]]) {
+        const item = document.createElement('div');
+        const caption = document.createElement('small');
+        caption.textContent = text;
+        const clock = document.createElement('bdi');
+        const time = Date.parse(entry?.time);
+        clock.textContent = Number.isFinite(time) ? employeeClock().format(time) : '—';
+        item.dataset.kind = kind;
+        item.append(caption,clock);
+        times.append(item);
+      }
+      card.append(times);
+      list.append(card);
+    }
+    if (group.name) {
+      const details = document.createElement('details');
+      details.className = 'employee-team-branch';
+      details.open = first;
+      const summary = document.createElement('summary');
+      summary.textContent = group.name + ' ';
+      const count = document.createElement('b');
+      count.textContent = new Intl.NumberFormat(employeeLanguage).format(group.shifts.length);
+      summary.append(count);
+      details.append(summary,list);
+      content.append(details);
+    } else content.append(list);
+    first = false;
+  }
 }
 
 function renderTeamHome() {
