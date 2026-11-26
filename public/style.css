@@ -1729,3 +1729,4 @@ html[data-theme="light"] .employee-card-icon{background:#d8e1d6;color:#337768}ht
 #employee-messages-dialog[open]{animation:employee-drop-down .22s ease-out}
 @keyframes employee-drop-down{from{transform:translateY(-24px);opacity:.4}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion: reduce){#employee-messages-dialog[open]{animation:none}}
+.employee-bottom-nav .employee-nav-more circle{fill:currentColor;stroke:none}
