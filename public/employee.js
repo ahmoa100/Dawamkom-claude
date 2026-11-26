@@ -33,6 +33,7 @@ const requestForm = $('#employee-request');
 const deviceList = $('#employee-device-list');
 const requestDialog = $('#employee-request-dialog');
 const messagesDialog = $('#employee-messages-dialog');
+messagesDialog.addEventListener('click',event=>{if(event.target!==messagesDialog)return;const box=messagesDialog.getBoundingClientRect();if(event.clientY>box.bottom||event.clientY<box.top||event.clientX<box.left||event.clientX>box.right)messagesDialog.close();});
 const requestTitle = $('#employee-requests-title');
 const employeeClocks = new Map();
 function employeeClock() {
