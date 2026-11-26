@@ -7,7 +7,7 @@ export function mutatePayroll(workspace, body, { owner, manager, now = new Date(
   const {month, operation} = body;
   const bounds = payrollMonthBounds(month);
   requireValue(month <= new Date(Date.parse(now) + 3*60*60*1000).toISOString().slice(0,7), 'Future payroll months cannot be prepared.');
-  requireValue(['prepare','salary','payment','adjustment','remove-adjustment','approve','export','bank'].includes(operation), 'Invalid payroll action.');
+  requireValue(['prepare','salary','payment','adjustment','edit-adjustment','remove-adjustment','approve','export','bank'].includes(operation), 'Invalid payroll action.');
   const runs = workspace.payrollRuns ??= [];
   let run = runs.find(item => item.month === month);
   if (!run) { run = {id:randomUUID(),month,status:'Draft',createdAt:now,entries:payrollEntries(workspace,month)}; runs.push(run); }
@@ -95,20 +95,28 @@ export function mutatePayroll(workspace, body, { owner, manager, now = new Date(
       entry.insuranceScheme=body.insuranceScheme;
       entry.insuranceSaned=body.insuranceSaned;
     } else entry.insuranceScheme='manual';
-  } else if (operation === 'adjustment') {
-    const category=payrollCategories.find(item=>item[0]===body.category);
+  } else if (operation === 'adjustment' || operation === 'edit-adjustment') {
+    const existing=operation==='edit-adjustment' ? entry.adjustments.find(item=>item.id===body.adjustmentId && !item.removedAt) : null;
+    if (operation==='edit-adjustment') {
+      requireValue(existing,'Payroll adjustment not found.');
+      requireValue(!existing.system,'Automatic payroll adjustments cannot be edited manually.');
+    }
+    const category=payrollCategories.find(item=>item[0]===(existing?.category??body.category));
     requireValue(category && typeof body.amount==='number' && Number.isFinite(body.amount) && body.amount>0 && body.amount<=100000000,'Enter a valid adjustment amount.');
     requireValue(typeof body.description==='string' && body.description.trim() && body.description.length<=1000,'Enter a description of up to 1000 characters.');
     const attachment=body.attachment;
     if (attachment) requireValue(typeof attachment.name==='string' && attachment.name.length<=180 &&
       ['image/png','image/jpeg','application/pdf'].includes(attachment.mime) && typeof attachment.data==='string' &&
       /^[A-Za-z0-9+/]*={0,2}$/.test(attachment.data) && Buffer.from(attachment.data,'base64').length>0 && Buffer.from(attachment.data,'base64').length<=2*1024*1024,'Choose a PDF, PNG or JPEG up to 2 MB.');
-    entry.adjustments.push({id:randomUUID(),category:category[0],kind:category[1],amount:payrollMoney(body.amount),description:body.description.trim(),createdAt:now,createdBy:owner?'account-administrator':manager.id,
-      ...(attachment?{attachment:{name:attachment.name,mime:attachment.mime,data:attachment.data}}:{})});
+    const actor=owner?'account-administrator':manager.id;
+    const values={amount:payrollMoney(body.amount),description:body.description.trim(),
+      ...(attachment?{attachment:{name:attachment.name,mime:attachment.mime,data:attachment.data}}:{})};
+    if(existing) Object.assign(existing,values,{updatedAt:now,updatedBy:actor});
+    else entry.adjustments.push({id:randomUUID(),category:category[0],kind:category[1],...values,createdAt:now,createdBy:actor});
   } else {
     const adjustment=entry.adjustments.find(item=>item.id===body.adjustmentId && !item.removedAt);
     requireValue(adjustment,'Payroll adjustment not found.');
-    requireValue(adjustment.system !== 'loan-repayment','Scheduled loan repayments cannot be removed manually.');
+    requireValue(!adjustment.system,'Automatic payroll adjustments cannot be removed manually.');
     adjustment.removedAt=now;
   }
   run.version=(run.version??0)+1; run.updatedAt=now;

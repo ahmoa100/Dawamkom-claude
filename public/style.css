@@ -1033,6 +1033,8 @@ textarea { min-height: 86px; resize: vertical; }
 .payroll-cell-add:hover:not(:disabled) { border-color: #83c9b3; background: #83c9b310; }
 .payroll-cell-add:disabled { opacity: 1; cursor: default; }
 .payroll-cell-add:disabled > span { visibility: hidden; }
+.payroll-cell-actions { display: inline-flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; }
+.payroll-cell-actions > .payroll-cell-add { padding-inline: 8px; }
 .payroll-drawer { position: fixed; inset: 12px auto auto 12px; margin: 0; width: min(460px,calc(100vw - 24px)); max-width: calc(100vw - 24px); height: auto; max-height: calc(100dvh - 24px); padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--dark-surface, #fff); color: inherit; font: inherit; box-shadow: 0 12px 38px #0003; overflow-x: hidden; overflow-y: auto; scrollbar-width: none; }
 .payroll-drawer::-webkit-scrollbar { display: none; }
 .payroll-drawer::backdrop { background: #103c4566; }

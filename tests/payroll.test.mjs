@@ -141,3 +141,24 @@ test('profile other allowances increase gross and leave the insurance base uncha
  run.status='Draft';
  assert.equal(payrollEntries(workspace,month)[0].other,2000);
 });
+
+test('editing a manual payroll adjustment updates the same line and preserves its attachment',()=>{
+ const w=fixture();
+ const attachment={name:'proof.pdf',mime:'application/pdf',data:Buffer.from('%PDF-1.4').toString('base64')};
+ update(w,{operation:'adjustment',staffId:'a',category:'late',amount:50,description:'Before',attachment});
+ const original=w.payrollRuns[0].entries[0].adjustments[0];
+ const edit={operation:'edit-adjustment',staffId:'a',adjustmentId:original.id,amount:20,description:'Corrected'};
+ assert.throws(()=>update(w,{...edit,expectedVersion:0}),/Payroll changed/);
+ update(w,edit);
+ const entry=w.payrollRuns[0].entries[0];
+ assert.equal(entry.adjustments.length,1);
+ assert.equal(entry.adjustments[0].id,original.id);
+ assert.equal(entry.adjustments[0].description,'Corrected');
+ assert.deepEqual(entry.adjustments[0].attachment,attachment);
+ assert.equal(payrollTotals(entry).deductions,20);
+ update(w,{operation:'remove-adjustment',staffId:'a',adjustmentId:original.id});
+ assert.equal(payrollTotals(w.payrollRuns[0].entries[0]).deductions,0);
+ assert.throws(()=>update(w,edit),/adjustment not found/);
+ update(w,{operation:'approve'});
+ assert.throws(()=>update(w,edit),/locked/);
+});
