@@ -119,6 +119,9 @@ const english = new Map([...Object.entries(ar).map(([key, value]) => [value, key
   'تسجيل الدخول': 'Sign in', 'تحقق من الموافقة': 'Check approval', 'طلب تغيير الجوال': 'Request browser change',
   'الطلبات: تغيير الجوال': 'Browser change requests', 'موافقة': 'Approve', 'رفض': 'Decline', 'إدارة': 'Management',
   'لم تحدد الشركة موقع عمل بعد. يتاح تسجيل الحضور والانصراف بعد تحديده.': 'Attendance will be available once the company adds a workplace.',
+  'كل شيء في مكان واحد': 'Everything in one place', 'سجل الحضور': 'Attendance history', 'البصمات حسب الشهر': 'Punches by month',
+  'عرض الطلبات وحالتها': 'View requests and status', 'لا توجد تنبيهات جديدة': 'No new notifications',
+  'الهوية والعقود والمستندات': 'IDs, contracts and documents', 'نواقص تحتاج إجراء': 'Items that need action',
 })]);
 let employeeLanguage = 'ar';
 try { if (localStorage.getItem('dawamkom-employee-language') === 'en') employeeLanguage = 'en'; } catch {}
@@ -135,7 +138,7 @@ function applyEmployeeLanguage() {
   document.documentElement.dir = employeeLanguage === 'ar' ? 'rtl' : 'ltr';
   for (const [node, label] of staticLabels) node.textContent = tr(label);
   for (const [element, name, value] of translatedAttributes) element.setAttribute(name, tr(value));
-  for(const link of document.querySelectorAll('#employee-profile-settings-panel a')){const privacy=new URL(link.href).pathname==='/privacy';link.querySelector('strong').textContent=employeeLanguage==='en'?(privacy?'Privacy policy':'Support'):(privacy?'سياسة الخصوصية':'الدعم');const url=new URL(link.href);url.searchParams.set('lang',employeeLanguage);url.searchParams.set('returnTo',location.pathname+'#profile-settings');link.href=url.href;}
+  for(const link of document.querySelectorAll('#employee-account-help a')){const privacy=new URL(link.href).pathname==='/privacy';link.querySelector('strong').textContent=employeeLanguage==='en'?(privacy?'Privacy policy':'Support'):(privacy?'سياسة الخصوصية':'الدعم');const url=new URL(link.href);url.searchParams.set('lang',employeeLanguage);url.searchParams.set('returnTo',location.pathname+'#profile-settings');link.href=url.href;}
 }
 applyEmployeeLanguage();
 let employeeView = /^#view\/(home|attendance|requests|more|profile(?:-personal|-salary|-leaves)?)$/.test(location.hash)?location.hash.slice(6):location.hash === '#profile-settings' ? 'profile' : location.hash === '#requests' ? 'requests' : 'home';
@@ -320,6 +323,9 @@ $('#employee-quick-customize').onclick = () => {
   dialog.showModal();
 };
 
+$('#employee-account-notifications').onclick = () => $('#employee-messages').click();
+$('#employee-account-wallet').onclick = () => $('#employee-document-wallet').onclick();
+$('#employee-account-follow-up').onclick = () => void showEmployeeFollowUp(api,employeeLanguage);
 $('#employee-document-wallet').onclick = () => {
   const endpoint = location.pathname.replace(/\/employee\/?$/, '') + '/api/documents';
   const dialog = employeeActionDialog(tr('محفظة المستندات'), tr('إغلاق'), 'employee-wallet');
@@ -895,8 +901,13 @@ function renderTeamRequestPage() {
  }));
  if(!panel.children.length){const empty=document.createElement('p');empty.className='employee-empty-state';empty.textContent=L('لا توجد طلبات لعرضها.','No requests to show.');panel.append(empty);}
 }
+function updateAccountRequestsNote(){
+ const pending=(session.ownRequests??[]).filter(r=>r.status==='Pending').length;
+ $('#employee-account-requests-note').textContent=pending?(employeeLanguage==='ar'?pending+' قيد المراجعة':pending+' pending'):tr('عرض الطلبات وحالتها');
+}
 function renderEmployeeRequests(){
  const own=session.ownRequests??[],counts=requestCounts(own);
+ updateAccountRequestsNote();
  for(const button of $('#employee-request-filters').querySelectorAll('[data-request-filter]')){
   const key=button.dataset.requestFilter,label=key==='all'?tr('الكل'):key==='pending'?tr(ar.Pending):tr('المكتملة');button.replaceChildren(document.createTextNode(label+' '));const count=document.createElement('b');count.textContent=new Intl.NumberFormat(employeeLanguage).format(counts[key]);button.append(count);button.setAttribute('aria-pressed',String(employeeRequestFilter===key));button.onclick=()=>{employeeRequestFilter=key;renderEmployeeRequests();};
  }
@@ -996,7 +1007,7 @@ function renderEmployeeLeaveProfile() {
   }
 }
 let employeeProfileTab = history.state?.profileTab ?? (location.hash === '#profile-settings' ? 'settings' : 'all');
-for (const link of document.querySelectorAll('#employee-profile-settings-panel a[href="/support"], #employee-profile-settings-panel a[href="/privacy"]')) {
+for (const link of document.querySelectorAll('#employee-account-help a[href="/support"], #employee-account-help a[href="/privacy"]')) {
   const url = new URL(link.href);
   url.searchParams.set('returnTo', location.pathname + '#profile-settings');
   link.href = url.href;
@@ -1087,6 +1098,9 @@ function renderPersonalProfile() {
     ['بدلات أخرى', money(salary ? salary.monthlyOtherAllowances ?? 0 : null)],
     ['الإجمالي الشهري', money(Number.isFinite(salary?.monthlyBase) && Number.isFinite(salary?.monthlyAllowances) ? salary.monthlyBase + salary.monthlyAllowances + (salary.monthlyOtherAllowances ?? 0) : null)]]);
   const balance=availableLeave(session.leaveBalance);
+  updateAccountRequestsNote();
+  $('#employee-account-wallet').hidden=!session.canViewDocuments;
+  $('#employee-account-follow-up').hidden=!session.canManageFollowUp;
   $('#employee-account-leave-balance').textContent=Number.isFinite(balance)?new Intl.NumberFormat(employeeLanguage,{maximumFractionDigits:2}).format(balance)+(employeeLanguage==='ar'?' يومًا':' days'):'—';
   filterEmployeeProfile();
 }
@@ -1506,6 +1520,8 @@ function updateEmployeeBell(latest=session){
  const read=latest?.ok?notificationReadStore(latest).read:new Set();
  const total=latest?.ok?employeeNotices(latest).filter(i=>!read.has(i.id)).length:0;
  count.hidden=!total;count.textContent=total;
+ const tileCount=$('#employee-account-notifications-count');tileCount.hidden=!total;tileCount.textContent=total;
+ $('#employee-account-notifications-note').textContent=total?(employeeLanguage==='ar'?total+' غير مقروءة':total+' unread'):tr('لا توجد تنبيهات جديدة');
  $('#employee-messages').setAttribute('aria-label',tr('التنبيهات')+(total?' ('+total+')':''));
 }
 $('#employee-messages').onclick = () => run($('#employee-messages'), async () => {

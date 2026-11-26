@@ -1702,3 +1702,21 @@ html[data-theme="light"] .employee-card-icon{background:#d8e1d6;color:#337768}ht
 @media (prefers-reduced-motion: reduce) {
   .approval-row-feedback.is-counting { animation-timing-function: steps(4, end); }
 }
+
+/* Staff "My account" tab: everything in one place */
+.employee-account-hub{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.employee-account-hub>button{position:relative;display:grid;justify-items:start;align-content:start;gap:4px;min-width:0;min-height:96px;padding:12px;border:1px solid var(--line);border-radius:15px;background:var(--portal-surface);color:inherit;font:inherit;text-align:start;cursor:pointer}
+.employee-account-hub>button:hover{border-color:var(--portal-accent)}
+.employee-account-hub>button[hidden]{display:none}
+.employee-account-hub .employee-card-icon{width:25px;height:25px;background:transparent}
+.employee-account-hub strong{font-size:15px;line-height:1.3;overflow-wrap:anywhere}
+.employee-account-hub .employee-account-leave strong{font-size:19px}
+.employee-account-hub small{font-size:12px;line-height:1.3;color:var(--muted)}
+.employee-account-badge{position:absolute;top:10px;inset-inline-end:10px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#d14b43;color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center}
+.employee-account-badge[hidden]{display:none}
+.employee-account-group{margin-top:0;padding:0 12px;gap:0;border-radius:14px}
+.employee-account-group .employee-setting-row{border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;padding:10px 0;min-height:54px;font-size:14px;color:inherit;text-decoration:none}
+.employee-account-group .employee-setting-row:last-child{border:0}
+.employee-account-group .employee-settings-logout{justify-content:center;color:#edaba2}
+.employee-account-group+.employee-account-group{margin-top:12px}
+[data-employee-view="profile"]{padding-bottom:24px}
