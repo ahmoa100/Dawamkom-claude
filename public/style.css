@@ -1704,3 +1704,118 @@ html[data-theme="light"] .employee-card-icon{background:#d8e1d6;color:#337768}ht
 @media (prefers-reduced-motion: reduce) {
   .approval-row-feedback.is-counting { animation-timing-function: steps(4, end); }
 }
+
+/* Staff "My account" tab: everything in one place */
+.employee-account-hub{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.employee-account-hub>button{position:relative;display:grid;justify-items:start;align-content:start;gap:4px;min-width:0;min-height:96px;padding:12px;border:1px solid var(--line);border-radius:15px;background:var(--portal-surface);color:inherit;font:inherit;text-align:start;cursor:pointer}
+.employee-account-hub>button:hover{border-color:var(--portal-accent)}
+.employee-account-hub>button[hidden]{display:none}
+.employee-account-hub .employee-card-icon{width:25px;height:25px;background:transparent}
+.employee-account-hub strong{font-size:15px;line-height:1.3;overflow-wrap:anywhere}
+.employee-account-hub .employee-account-leave strong{font-size:19px}
+.employee-account-hub small{font-size:12px;line-height:1.3;color:var(--muted)}
+.employee-account-badge{position:absolute;top:10px;inset-inline-end:10px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#d14b43;color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center}
+.employee-account-badge[hidden]{display:none}
+.employee-account-group{margin-top:0;padding:0 12px;gap:0;border-radius:14px}
+.employee-account-group .employee-setting-row{border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;padding:10px 0;min-height:54px;font-size:14px;color:inherit;text-decoration:none}
+.employee-account-group .employee-setting-row:last-child{border:0}
+.employee-account-group .employee-settings-logout{justify-content:center;color:#edaba2}
+.employee-account-group+.employee-account-group{margin-top:12px}
+[data-employee-view="profile"]{padding-bottom:24px}
+
+/* Staff notifications: a panel that drops down from the top */
+#employee-messages-dialog{inset-block:0 auto;margin:0 auto;width:min(100%,520px);max-width:520px;height:auto;max-height:min(78dvh,640px);overflow-y:auto;border:1px solid var(--line);border-top:0;border-radius:0 0 22px 22px;padding:max(16px,env(safe-area-inset-top)) 16px 10px;box-shadow:0 18px 40px #0007}
+#employee-messages-dialog::after{content:'';display:block;width:44px;height:5px;border-radius:3px;background:var(--line);margin:14px auto 0}
+#employee-messages-dialog[open]{animation:employee-drop-down .22s ease-out}
+@keyframes employee-drop-down{from{transform:translateY(-24px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){#employee-messages-dialog[open]{animation:none}}
+.employee-bottom-nav .employee-nav-more circle{fill:currentColor;stroke:none}
+
+/* Tap-to-pick time (hour + minute) instead of typing */
+input.correction-time{position:absolute!important;inline-size:1px!important;block-size:1px!important;min-height:0!important;padding:0!important;border:0!important;opacity:0;pointer-events:none;overflow:hidden}
+.correction-time-picker{display:flex;align-items:center;gap:8px;grid-column:1/-1;inline-size:100%}
+.correction-time-picker[hidden]{display:none}
+.correction-time-picker select{flex:1;min-inline-size:0;min-height:48px;font-size:17px;font-variant-numeric:tabular-nums;text-align:center;text-align-last:center}
+.correction-time-picker b{font-size:20px}
+.correction-time-picker.is-invalid select{border-color:#e0726a}
+
+/* Attendance tab: personal / team switch, month totals and "me today" card */
+.employee-attendance-scope{margin-block:4px 14px}
+.employee-attendance-totals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-block-end:14px}
+.employee-attendance-totals>div{display:grid;gap:4px;justify-items:center;text-align:center;padding:10px 4px;border:1px solid var(--line);border-radius:14px;background:var(--portal-surface);min-width:0}
+.employee-attendance-totals strong{font-size:17px;line-height:1.2;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.employee-attendance-totals small{font-size:11px;color:var(--muted);line-height:1.25}
+.employee-attendance-totals>[data-day-status]{border-top:3px solid var(--tile-tone)}
+.employee-attendance-totals>[data-day-status="complete"]{--tile-tone:#25cb83}
+.employee-attendance-totals>[data-day-status="issue"]{--tile-tone:#ed5265}
+.employee-attendance-totals>[data-day-status="off"]{--tile-tone:#8aa0a6}
+.employee-attendance-me{display:grid;gap:10px;margin-block-end:14px}
+.employee-attendance-me header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.employee-attendance-me-times{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.employee-attendance-me-times>div{display:grid;gap:3px;padding:10px;border:1px solid var(--line);border-radius:12px}
+.employee-attendance-me-times small{color:var(--muted);font-size:12px}
+.employee-attendance-me-times bdi{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.employee-attendance-me-link{justify-self:start;border:0;background:transparent;color:var(--portal-accent);font:inherit;font-size:13px;padding:4px 0;cursor:pointer;min-height:32px}
+
+/* Attendance tab, team view: date bar, status chips with counts, one card per person */
+.employee-team-cards-mode .employee-team-datebar{align-items:center;padding:6px;border:1px solid var(--line);border-radius:14px;background:var(--portal-surface);margin-block-end:12px}
+.employee-team-cards-mode .employee-team-datebar label{display:flex;justify-content:center}
+.employee-team-cards-mode .employee-team-datebar input:not(.date-control-native){border:0;background:transparent;text-align:center;font-weight:700;font-size:16px}
+.employee-team-cards-mode .employee-team-datebar .employee-icon-button{min-width:44px;min-height:44px;padding:0;border:0;background:var(--portal-control);font-size:20px}
+.employee-team-cards-mode .employee-team-datebar .employee-icon-button:disabled{opacity:.35}
+.employee-team-chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-block:0 12px;padding-block-end:2px}
+.employee-team-chips::-webkit-scrollbar{display:none}
+.employee-team-attendance-filters.employee-team-chips .button{flex:none;min-height:40px;border-radius:999px;padding:0 14px;font-size:14px;white-space:nowrap}
+.employee-team-attendance-filters.employee-team-chips .button::before{content:none}
+.employee-team-chips .button b{font-variant-numeric:tabular-nums;margin-inline-start:2px}
+.employee-team-card-list{display:grid;gap:10px}
+.employee-team-card{display:grid;gap:10px;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--portal-surface)}
+.employee-team-card-head{display:flex;align-items:center;gap:10px}
+.employee-team-avatar{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--portal-control)}
+.employee-team-who{flex:1;min-width:0;display:grid;gap:2px}
+.employee-team-who b{line-height:1.3;overflow-wrap:anywhere}
+.employee-team-who small{color:var(--muted);font-size:13px;line-height:1.35}
+.employee-team-card .badge{flex:none;white-space:nowrap}
+.employee-team-times{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.employee-team-times>div{display:grid;gap:2px;padding:8px 10px;border-radius:10px;background:var(--portal-control)}
+.employee-team-times small{color:var(--muted);font-size:12px}
+.employee-team-times bdi{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.employee-team-card[data-shift-status="absent"] .employee-team-times bdi{color:var(--muted)}
+.employee-team-branch{margin-block-end:12px}
+.employee-team-branch>summary{display:flex;align-items:center;gap:8px;min-height:44px;font-weight:700;cursor:pointer}
+.employee-team-branch>summary b{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.employee-team-empty{color:var(--muted);text-align:center;padding:24px 8px;border:1px dashed var(--line);border-radius:16px}
+
+/* Home punch card in the new colours (deep teal to green, bright punch button) */
+.employee-today-date{margin:-6px 0 12px;color:var(--muted);font-size:14px;text-align:center}
+.employee-portal .employee-attendance-card{gap:12px;text-align:start;padding:16px;border:0;border-radius:20px;color:#eef7f4;background:linear-gradient(135deg,#103c45,color-mix(in srgb,#103c45 70%,#73c9a6))}
+.employee-punch-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.employee-punch-top strong{font-size:17px}
+.employee-attendance-card .employee-shift{font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:rgb(255 255 255/.14);color:#eef7f4;text-align:center}
+.employee-now{display:block;font-family:var(--font-en);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.employee-attendance-card .employee-scheduled-periods{padding:0;border:0;color:#cfe7df;font-size:13.5px}
+.employee-attendance-card .employee-scheduled-periods li{justify-content:flex-start}
+.employee-attendance-card .employee-scheduled-periods bdi{color:#cfe7df}
+.employee-attendance-card .hint{color:#cfe7df;margin:0}
+.employee-punch-times{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.employee-punch-times>div{display:grid;gap:2px;padding:6px 8px;border-radius:10px;background:rgb(255 255 255/.1)}
+.employee-punch-times small{font-size:12px;color:#cfe7df}
+.employee-punch-times bdi,.employee-attendance-card .employee-punch-times .employee-timer{font-family:var(--font-en);font-size:16px;font-weight:700;line-height:1.4;color:#eef7f4;font-variant-numeric:tabular-nums}
+.employee-portal #employee-punch{min-height:56px;border:0;border-radius:14px;font-size:18px;font-weight:800;background:#7ee0a5;color:#06231d}
+.employee-portal #employee-punch[data-kind="out"]{background:#f3d38a;color:#3a2a06}
+.employee-portal #employee-punch .employee-punch-icon{filter:brightness(0)}
+.employee-portal #employee-punch:disabled{background:rgb(255 255 255/.15);color:#cfe7df}
+.employee-portal #employee-punch:disabled .employee-punch-icon{filter:brightness(0) invert(1)}
+
+/* Requests tab: rounded status chips and compact request cards (icon, title and dates, status in one row) */
+.employee-request-filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-block-end:2px}
+.employee-request-filters::-webkit-scrollbar{display:none}
+.employee-request-filters button{flex:none;min-height:40px;border-radius:999px;padding:0 14px;font-size:14px;background:var(--portal-surface);white-space:nowrap}
+.employee-request-filters button[aria-pressed="true"]{border-color:#73c9a6;background:#73c9a6;color:#06231d;font-weight:700}
+.employee-own-request-card{border-radius:16px}
+.employee-card-row{display:flex;align-items:center;gap:10px}
+.employee-card-row .employee-card-copy{flex:1;min-width:0;display:grid;gap:2px}
+.employee-card-row .employee-card-copy strong{font-size:16px;line-height:1.3}
+.employee-card-row .employee-card-copy small{color:var(--muted);font-size:13px}
+.employee-card-row .badge{flex:none;white-space:nowrap;border-radius:999px;font-size:12px;padding:3px 10px}
+.employee-own-request-card .employee-card-foot{margin-block-start:10px}

@@ -1,18 +1,56 @@
 import {effectivePeriodIds,periodBounds,periodOnDay,isFlexiblePeriod} from './work-schedule.js';
 
+const twoDigits = value => String(value).padStart(2, '0');
+function correctionHourLabel(hour) {
+  const arabic = (document.documentElement.lang || 'ar') !== 'en';
+  const twelve = hour % 12 || 12;
+  if (!arabic) return twelve + (hour < 12 ? ' AM' : ' PM');
+  return twelve + (hour === 12 ? ' ظهرًا' : hour < 12 ? ' صباحًا' : ' مساءً');
+}
+
+// Staff pick the time with two taps (hour, then minute) instead of typing it.
+// The original text input stays in the form, visually hidden, so validation and
+// submission keep working with the same HH:MM value.
 export function configureCorrectionTime(input) {
   input.classList.add('correction-time');
   input.dir = 'ltr';
-  input.inputMode = 'numeric';
-  input.placeholder = 'HH:MM';
+  input.inputMode = 'none';
   input.pattern = '(?:[01][0-9]|2[0-3]):[0-5][0-9]';
-  input.title = '24h · 17:27';
   input.autocomplete = 'off';
-  input.addEventListener('input', () => {
-    const value = input.value.trim().replace(/[٠-٩۰-۹]/g, digit => String(digit.charCodeAt(0) & 15));
-    const formatted = value.replace(/^([0-9]{2})([0-9]{2})$/, '$1:$2');
-    if (input.value !== formatted) input.value = formatted;
-  });
+  input.tabIndex = -1;
+  const picker = document.createElement('span'), hour = document.createElement('select'), minute = document.createElement('select');
+  picker.className = 'correction-time-picker';
+  picker.dir = 'ltr';
+  hour.dir = (document.documentElement.lang || 'ar') === 'en' ? 'ltr' : 'rtl';
+  hour.append(new Option((document.documentElement.lang || 'ar') === 'en' ? 'Hour' : 'الساعة', ''));
+  for (let h = 0; h < 24; h++) hour.append(new Option(correctionHourLabel(h), twoDigits(h)));
+  minute.append(new Option((document.documentElement.lang || 'ar') === 'en' ? 'Min' : 'الدقيقة', ''));
+  for (let m = 0; m < 60; m++) minute.append(new Option(twoDigits(m), twoDigits(m)));
+  const separator = document.createElement('b');
+  separator.textContent = ':';
+  separator.setAttribute('aria-hidden', 'true');
+  picker.append(hour, separator, minute);
+  const write = () => {
+    if (hour.value && !minute.value) minute.value = '00';
+    const value = hour.value && minute.value ? hour.value + ':' + minute.value : '';
+    if (input.value !== value) { input.value = value; input.dispatchEvent(new Event('input', { bubbles: true })); input.dispatchEvent(new Event('change', { bubbles: true })); }
+  };
+  hour.addEventListener('change', write);
+  minute.addEventListener('change', write);
+  const sync = () => {
+    picker.hidden = input.hidden;
+    hour.disabled = minute.disabled = input.disabled;
+    const [h = '', m = ''] = /^\d{2}:\d{2}$/.test(input.value) ? input.value.split(':') : [];
+    if (hour.value !== h) hour.value = h;
+    if (minute.value !== m) minute.value = m;
+  };
+  new MutationObserver(sync).observe(input, { attributes: true, attributeFilter: ['hidden', 'disabled'] });
+  input.addEventListener('focus', () => { sync(); if (!picker.hidden && picker.isConnected) hour.focus(); });
+  input.addEventListener('invalid', () => picker.classList.add('is-invalid'));
+  input.addEventListener('input', () => { picker.classList.remove('is-invalid'); });
+  const name = () => { const label = input.getAttribute('aria-label') || ''; const en = (document.documentElement.lang || 'ar') === 'en'; hour.setAttribute('aria-label', (label ? label + ' · ' : '') + (en ? 'hour' : 'الساعة')); minute.setAttribute('aria-label', (label ? label + ' · ' : '') + (en ? 'minute' : 'الدقيقة')); };
+  const attach = () => { if (input.isConnected) { if (picker.previousElementSibling !== input) input.after(picker); name(); sync(); } else requestAnimationFrame(attach); };
+  queueMicrotask(attach);
 }
 
 export function correctionPeriods(workspace, person, day) {

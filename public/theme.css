@@ -187,3 +187,6 @@ html[data-theme] .staff-profile-tabs a:is(:hover,:focus-visible,[aria-current="p
 html[data-theme] .staff-profile-tabs a[aria-current="page"] {border-block-end-color:var(--mint);}
 html[data-appearance="medium"] {--ui-danger:#541321;}
 :where(html[data-dawamkom-app], html[data-dawamkom-app] *) { touch-action: manipulation; }
+/* Home punch card: the ID keeps it above the generic dark-theme .card surface */
+html #employee-dashboard .employee-attendance-card { background: linear-gradient(135deg,#103c45,color-mix(in srgb,#103c45 70%,#73c9a6)); color:#eef7f4; border:0; }
+html[data-theme="light"] #employee-dashboard .employee-attendance-card { background: linear-gradient(135deg,#245e57,color-mix(in srgb,#245e57 70%,#2f7063)); color:#f3f0e6; }

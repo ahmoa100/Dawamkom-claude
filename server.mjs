@@ -439,8 +439,8 @@ function teamAttendanceSummary(workspace,employee,metricStaff,branchManager,sign
     scheduledEnd: range?.period.start && range?.period.end ? range.end : null,
   });
   for (const person of metricStaff) {
-    const metadata = {staffId:person.id,name:person.name,nameAr:person.nameAr,nameEn:person.nameEn,
-      branchId:person.branchId ?? null,administrator:isAdministrator(person,workspace)};
+    const metadata = {staffId:person.id,name:person.name,nameAr:person.nameAr,nameEn:person.nameEn,jobTitle:person.jobTitle ?? '',
+      self:person.id === employee?.id,branchId:person.branchId ?? null,administrator:isAdministrator(person,workspace)};
     const ranges = effectiveRanges(workspace,person,today);
     const windows = employeePunchWindows(workspace,person,today).filter(window => ranges.some(range => range.start === window.start));
     teamPeriods.set(person.id,{metadata,ranges,windows,entries:new Map()});
