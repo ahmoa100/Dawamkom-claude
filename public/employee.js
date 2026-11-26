@@ -6,6 +6,7 @@ import {documentAlertPresenter} from './document-alert-popup.js';
 import {dateText,dateFormatter} from './date-format.js';
 import './date-controls.js';
 import {submitPunch,punchMessages} from './punch-feedback.js';
+import {configureCorrectionTime} from './punch-correction.js';
 import './ux.js';
 import { displayProfileAvatar } from './profile-avatar.js';
 document.addEventListener('profile-avatar-updated',event=>{if(session)session.photo=event.detail;});
@@ -1469,11 +1470,8 @@ async function loadCorrectionTimes(focusMissing = false) {
         const box = document.createElement('input'), time = document.createElement('input'), recorded = document.createElement('p');
         row.className = 'employee-correction-option';
         box.type = 'checkbox';
-        time.type = 'time';
-        time.step = '60';
-        time.addEventListener('click', () => {
-          try { time.showPicker?.(); } catch { /* The platform can open its own picker. */ }
-        });
+        time.type = 'text';
+        configureCorrectionTime(time);
         time.name = 'proposed' + kind + index;
         time.setAttribute('aria-label', tr(proposed));
         time.hidden = time.disabled = true;
