@@ -1785,3 +1785,37 @@ input.correction-time{position:absolute!important;inline-size:1px!important;bloc
 .employee-team-branch>summary{display:flex;align-items:center;gap:8px;min-height:44px;font-weight:700;cursor:pointer}
 .employee-team-branch>summary b{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .employee-team-empty{color:var(--muted);text-align:center;padding:24px 8px;border:1px dashed var(--line);border-radius:16px}
+
+/* Home punch card in the new colours (deep teal to green, bright punch button) */
+.employee-today-date{margin:-6px 0 12px;color:var(--muted);font-size:14px;text-align:center}
+.employee-portal .employee-attendance-card{gap:12px;text-align:start;padding:16px;border:0;border-radius:20px;color:#eef7f4;background:linear-gradient(135deg,#103c45,color-mix(in srgb,#103c45 70%,#73c9a6))}
+.employee-punch-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.employee-punch-top strong{font-size:17px}
+.employee-attendance-card .employee-shift{font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:rgb(255 255 255/.14);color:#eef7f4;text-align:center}
+.employee-now{display:block;font-family:var(--font-en);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.employee-attendance-card .employee-scheduled-periods{padding:0;border:0;color:#cfe7df;font-size:13.5px}
+.employee-attendance-card .employee-scheduled-periods li{justify-content:flex-start}
+.employee-attendance-card .employee-scheduled-periods bdi{color:#cfe7df}
+.employee-attendance-card .hint{color:#cfe7df;margin:0}
+.employee-punch-times{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.employee-punch-times>div{display:grid;gap:2px;padding:6px 8px;border-radius:10px;background:rgb(255 255 255/.1)}
+.employee-punch-times small{font-size:12px;color:#cfe7df}
+.employee-punch-times bdi,.employee-attendance-card .employee-punch-times .employee-timer{font-family:var(--font-en);font-size:16px;font-weight:700;line-height:1.4;color:#eef7f4;font-variant-numeric:tabular-nums}
+.employee-portal #employee-punch{min-height:56px;border:0;border-radius:14px;font-size:18px;font-weight:800;background:#7ee0a5;color:#06231d}
+.employee-portal #employee-punch[data-kind="out"]{background:#f3d38a;color:#3a2a06}
+.employee-portal #employee-punch .employee-punch-icon{filter:brightness(0)}
+.employee-portal #employee-punch:disabled{background:rgb(255 255 255/.15);color:#cfe7df}
+.employee-portal #employee-punch:disabled .employee-punch-icon{filter:brightness(0) invert(1)}
+
+/* Requests tab: rounded status chips and compact request cards (icon, title and dates, status in one row) */
+.employee-request-filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-block-end:2px}
+.employee-request-filters::-webkit-scrollbar{display:none}
+.employee-request-filters button{flex:none;min-height:40px;border-radius:999px;padding:0 14px;font-size:14px;background:var(--portal-surface);white-space:nowrap}
+.employee-request-filters button[aria-pressed="true"]{border-color:#73c9a6;background:#73c9a6;color:#06231d;font-weight:700}
+.employee-own-request-card{border-radius:16px}
+.employee-card-row{display:flex;align-items:center;gap:10px}
+.employee-card-row .employee-card-copy{flex:1;min-width:0;display:grid;gap:2px}
+.employee-card-row .employee-card-copy strong{font-size:16px;line-height:1.3}
+.employee-card-row .employee-card-copy small{color:var(--muted);font-size:13px}
+.employee-card-row .badge{flex:none;white-space:nowrap;border-radius:999px;font-size:12px;padding:3px 10px}
+.employee-own-request-card .employee-card-foot{margin-block-start:10px}

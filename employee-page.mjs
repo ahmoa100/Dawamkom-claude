@@ -39,12 +39,14 @@ ${passwordRules('employee-password-rules', true)}
 <div id="employee-reminder-optin" class="card" hidden><p>فعّل الإشعارات لتصلك تذكيرات بداية ونهاية الدوام.</p><button type="button" class="button secondary" id="employee-enable-reminders">تفعيل تذكيرات الدوام</button></div>
 <h2 class="employee-greeting" id="employee-greeting" aria-live="polite" aria-atomic="true"></h2>
 <p id="employee-sample-requests" class="hint" hidden>بطاقات الطلبات التجريبية</p>
+<p id="employee-today-date" class="employee-today-date"></p>
 <section class="card employee-attendance-card" aria-label="الحضور والانصراف">
-<p id="employee-shift" class="employee-shift" aria-live="polite"></p>
-<time id="employee-timer" class="employee-timer" dir="ltr">00:00</time>
-<p id="employee-location-note" class="hint" hidden>لم تحدد الشركة موقع عمل بعد. يتاح تسجيل الحضور والانصراف بعد تحديده.</p>
-<button type="button" class="button primary" id="employee-punch"><img src="/punch-fingerprint.png" class="employee-punch-icon" alt="" width="30" height="30"><span id="employee-punch-label">تسجيل البصمة</span></button>
+<div class="employee-punch-top"><strong>حضوري اليوم</strong><span id="employee-shift" class="employee-shift" aria-live="polite"></span></div>
+<time id="employee-now" class="employee-now" dir="ltr"></time>
 <ul id="employee-scheduled-periods" class="employee-scheduled-periods" hidden></ul>
+<p id="employee-location-note" class="hint" hidden>لم تحدد الشركة موقع عمل بعد. يتاح تسجيل الحضور والانصراف بعد تحديده.</p>
+<div class="employee-punch-times"><div><small>وقت الحضور</small><bdi id="employee-today-in">—</bdi></div><div><small>وقت الانصراف</small><bdi id="employee-today-out">—</bdi></div><div><small>ساعات العمل</small><time id="employee-timer" class="employee-timer" dir="ltr">00:00</time></div></div>
+<button type="button" class="button primary" id="employee-punch"><img src="/punch-fingerprint.png" class="employee-punch-icon" alt="" width="30" height="30"><span id="employee-punch-label">تسجيل البصمة</span></button>
 </section>
 <div id="employee-personal-home">
 <section class="employee-quick-actions" aria-labelledby="employee-quick-title">

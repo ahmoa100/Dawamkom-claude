@@ -21,7 +21,7 @@ export function requestCardMarkup(request,{label,statusLabel,dateLabel,progress,
  const e=escapeHtml,tone=request.status==='Pending'?'amber':request.status==='Approved'?'green':request.status==='Declined'?'red':'neutral';
  const badge='<span class="badge '+tone+'" data-status="'+e(request.status)+'">'+e(statusLabel)+'</span>';
  return compact ? iconBox(requestIcon(request.type))+'<span class="employee-card-copy"><strong>'+e(label)+'</strong><small>'+e(dateLabel)+'</small></span>'+badge :
- '<span class="employee-card-top">'+iconBox(requestIcon(request.type))+badge+'</span><strong>'+e(label)+'</strong><small class="employee-request-range">'+e(dateLabel)+'</small><span class="employee-card-foot"><span>'+e(progress)+'</span><span aria-hidden="true">‹</span></span>';
+ '<span class="employee-card-row">'+iconBox(requestIcon(request.type))+'<span class="employee-card-copy"><strong>'+e(label)+'</strong><small class="employee-request-range">'+e(dateLabel)+'</small></span>'+badge+'</span><span class="employee-card-foot"><span>'+e(progress)+'</span><span aria-hidden="true">‹</span></span>';
 }
 export function recordedDuration(minutes,language='ar') {
  if(!Number.isFinite(minutes))return '—';

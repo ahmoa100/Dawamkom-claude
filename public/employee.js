@@ -48,6 +48,7 @@ const formatHour = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Riyadh', h
 const requestLabels = { 'Missed punch': 'تصحيح البصمة', 'Attendance excuse': 'الاستئذان', leave: 'إجازة', all: 'طلب جديد' };
 const english = new Map([...Object.entries(ar).map(([key, value]) => [value, key]), ...Object.entries({
   'حالة الطلب':'Request status','التنقل':'Navigation','الوضع الفاتح':'Light mode','ملخص الفريق':'Team summary','الأمان والمساعدة':'Security and help','حسابي':'My account','طلباتي':'My requests','تعديل الصورة':'Edit photo','بياناتي':'My information','تفضيلاتي':'Preferences','رصيد الإجازات':'Leave balance','التفاصيل ‹':'Details ‹','الهوية والتواصل وبيانات العمل':'Identity, contact and employment','الرصيد والحالية والسابقة':'Balance, current and previous leave','كل طلب، وحالته، والخطوة التالية':'Every request, its status and next step','＋ طلب جديد':'+ New request','عرض الكل ‹':'View all ‹','طلبات تحتاج موافقتك':'Requests awaiting your approval','ما يخص فريقي':'My team','المكتملة':'Completed',
+  'حضوري اليوم': 'Today', 'وقت الحضور': 'Clock-in', 'وقت الانصراف': 'Clock-out', 'ساعات العمل': 'Hours worked',
   'الرئيسية': 'Home', 'الحضور': 'Attendance', 'الطلبات': 'Requests', 'المزيد': 'More', 'عرض الملف الشخصي': 'View profile',
   'الملف الشخصي': 'Profile', 'تغيير كلمة المرور': 'Change password', 'كلمة المرور الحالية': 'Current password',
   'شروط كلمة المرور': 'Password requirements', '١٠ أحرف على الأقل': 'At least 10 characters',
@@ -1363,6 +1364,20 @@ function updateTime() {
   const clock = [Math.floor(elapsed / 60), elapsed % 60].map(value => String(value).padStart(2, '0')).join(':');
   if ($('#employee-shift').textContent !== hint) $('#employee-shift').textContent = hint;
   if ($('#employee-timer').textContent !== clock) $('#employee-timer').textContent = clock;
+  // Home punch card: current time, today's date, first clock-in and last clock-out of today.
+  const nowText = employeeClock().format(now);
+  if ($('#employee-now').textContent !== nowText) $('#employee-now').textContent = nowText;
+  const dateText = new Intl.DateTimeFormat(employeeLanguage === 'en' ? 'en-GB' : 'ar-SA-u-ca-gregory-nu-latn',
+    { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Riyadh' }).format(now);
+  if ($('#employee-today-date').textContent !== dateText) $('#employee-today-date').textContent = dateText;
+  const todays = (session.recentPunches ?? []).filter(entry => new Date(Date.parse(entry.time) + 10800000).toISOString().slice(0, 10) === session.today)
+    .sort((a, b) => Date.parse(a.time) - Date.parse(b.time));
+  const first = todays.find(entry => entry.kind === 'in'), last = todays.findLast(entry => entry.kind === 'out');
+  for (const [id, entry] of [['#employee-today-in', first], ['#employee-today-out', last]]) {
+    const value = entry ? employeeClock().format(Date.parse(entry.time)) : '—';
+    if ($(id).textContent !== value) $(id).textContent = value;
+  }
+  if (punch.dataset.kind !== timing.kind) punch.dataset.kind = timing.kind;
 }
 function currentPunchTiming() {
   return punchTiming(session.punchWindows ?? [], Date.now() + (session.clockOffset ?? 0),
