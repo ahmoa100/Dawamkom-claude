@@ -74,6 +74,13 @@ ${passwordRules('employee-password-rules', true)}
 </div>
 <section data-employee-view="attendance" hidden>
 <h2>الحضور</h2>
+<div id="employee-attendance-scope" class="employee-home-tabs employee-attendance-scope" role="group" aria-label="عرض الحضور" hidden><button type="button" class="button" data-attendance-scope="personal" aria-pressed="true">حضوري</button><button type="button" class="button" data-attendance-scope="team" aria-pressed="false">الفريق</button></div>
+<div id="employee-attendance-team" hidden>
+<section class="card employee-attendance-me" id="employee-attendance-me" aria-label="حالتي اليوم"></section>
+<div id="employee-attendance-team-list"></div>
+</div>
+<div id="employee-attendance-personal">
+<div id="employee-attendance-totals" class="employee-attendance-totals" aria-live="polite"></div>
 <div class="employee-calendar-header">
 <button type="button" class="button secondary employee-icon-button" data-attendance-month="-1" aria-label="الشهر السابق"><span dir="ltr" aria-hidden="true">‹</span></button>
 <strong id="employee-calendar-month"></strong>
@@ -82,6 +89,7 @@ ${passwordRules('employee-password-rules', true)}
 <div id="employee-calendar-grid" class="employee-calendar-grid"></div>
 <div class="employee-calendar-legend"><span data-day-status="complete">حضور مكتمل</span><span data-day-status="missing">بصمة ناقصة</span><span data-day-status="issue">غياب أو سجل يحتاج مراجعة</span><span data-day-status="off">لا يلزم الحضور</span></div>
 <div id="employee-calendar-details" class="card" aria-live="polite"></div>
+</div>
 </section>
 <section data-employee-view="requests" hidden><h2>الطلبات</h2>
 <div id="employee-request-scope" class="employee-home-tabs" role="group" aria-label="الطلبات" hidden><button type="button" class="button" data-request-scope="own" aria-pressed="true">طلباتي</button><button type="button" class="button" data-request-scope="team" aria-pressed="false">طلبات الفريق</button></div>

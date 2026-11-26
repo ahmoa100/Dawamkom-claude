@@ -1738,3 +1738,21 @@ input.correction-time{position:absolute!important;inline-size:1px!important;bloc
 .correction-time-picker select{flex:1;min-inline-size:0;min-height:48px;font-size:17px;font-variant-numeric:tabular-nums;text-align:center;text-align-last:center}
 .correction-time-picker b{font-size:20px}
 .correction-time-picker.is-invalid select{border-color:#e0726a}
+
+/* Attendance tab: personal / team switch, month totals and "me today" card */
+.employee-attendance-scope{margin-block:4px 14px}
+.employee-attendance-totals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-block-end:14px}
+.employee-attendance-totals>div{display:grid;gap:4px;justify-items:center;text-align:center;padding:10px 4px;border:1px solid var(--line);border-radius:14px;background:var(--portal-surface);min-width:0}
+.employee-attendance-totals strong{font-size:17px;line-height:1.2;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.employee-attendance-totals small{font-size:11px;color:var(--muted);line-height:1.25}
+.employee-attendance-totals>[data-day-status]{border-top:3px solid var(--tile-tone)}
+.employee-attendance-totals>[data-day-status="complete"]{--tile-tone:#25cb83}
+.employee-attendance-totals>[data-day-status="issue"]{--tile-tone:#ed5265}
+.employee-attendance-totals>[data-day-status="off"]{--tile-tone:#8aa0a6}
+.employee-attendance-me{display:grid;gap:10px;margin-block-end:14px}
+.employee-attendance-me header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.employee-attendance-me-times{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.employee-attendance-me-times>div{display:grid;gap:3px;padding:10px;border:1px solid var(--line);border-radius:12px}
+.employee-attendance-me-times small{color:var(--muted);font-size:12px}
+.employee-attendance-me-times bdi{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.employee-attendance-me-link{justify-self:start;border:0;background:transparent;color:var(--portal-accent);font:inherit;font-size:13px;padding:4px 0;cursor:pointer;min-height:32px}
