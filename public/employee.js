@@ -1376,8 +1376,8 @@ async function loadCorrectionTimes(focusMissing = false) {
     correctionPeriods.forEach((period, index) => {
       const card = document.createElement('fieldset'), legend = document.createElement('legend');
       card.className = 'employee-correction-period';
-      legend.textContent = period.id ? correctionPeriodLabel(period.name, period.start, period.end) : tr('وقت التصحيح المقترح');
-      card.append(legend);
+      // A single unnamed period would only repeat the section title above it.
+      if (period.id) { legend.textContent = correctionPeriodLabel(period.name, period.start, period.end); card.append(legend); }
       for (const [kind, entry, label, proposed] of [
         ['In', period.arrival, 'وقت الحضور المسجل', 'وقت الحضور المقترح'],
         ['Out', period.departure, 'وقت الانصراف المسجل', 'وقت الانصراف المقترح'],

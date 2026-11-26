@@ -1730,3 +1730,11 @@ html[data-theme="light"] .employee-card-icon{background:#d8e1d6;color:#337768}ht
 @keyframes employee-drop-down{from{transform:translateY(-24px);opacity:.4}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion: reduce){#employee-messages-dialog[open]{animation:none}}
 .employee-bottom-nav .employee-nav-more circle{fill:currentColor;stroke:none}
+
+/* Tap-to-pick time (hour + minute) instead of typing */
+input.correction-time{position:absolute!important;inline-size:1px!important;block-size:1px!important;min-height:0!important;padding:0!important;border:0!important;opacity:0;pointer-events:none;overflow:hidden}
+.correction-time-picker{display:flex;align-items:center;gap:8px;grid-column:1/-1;inline-size:100%}
+.correction-time-picker[hidden]{display:none}
+.correction-time-picker select{flex:1;min-inline-size:0;min-height:48px;font-size:17px;font-variant-numeric:tabular-nums;text-align:center;text-align-last:center}
+.correction-time-picker b{font-size:20px}
+.correction-time-picker.is-invalid select{border-color:#e0726a}
